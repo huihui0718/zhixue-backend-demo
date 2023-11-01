@@ -18,6 +18,7 @@ package me.zhengjie.modules.chat.rest;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.chat.domain.Chat;
 import me.zhengjie.modules.chat.service.ChatService;
 import me.zhengjie.modules.chat.service.dto.ChatDto;
@@ -74,8 +75,8 @@ public class ChatController {
     }
 
     @GetMapping("/page/{roomId}")
-    @Log("查询聊天")
-    @ApiOperation("查询聊天")
+    @Log("查询聊天page")
+    @ApiOperation("查询聊天page")
     @AnonymousAccess
     public ResponseEntity<Object> queryChat(@PathVariable Integer roomId, ChatQueryCriteria criteria, Pageable pageable){
         criteria.setUserId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
@@ -85,6 +86,14 @@ public class ChatController {
         List<ChatDto> list = (List<ChatDto>) content;
         stringObjectMap.put("content",list.stream().sorted((o1, o2) -> o1.getId()-o2.getId()).collect(Collectors.toList()));
         return new ResponseEntity<>(stringObjectMap,HttpStatus.OK);
+    }
+
+    @GetMapping
+    @Log("查询聊天")
+    @ApiOperation("查询聊天")
+    @PreAuthorize("@el.check('chat:list')")
+    public ResponseEntity<Object> queryChat(ChatQueryCriteria criteria, Pageable pageable){
+        return new ResponseEntity<>(chatService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
     @PostMapping
@@ -109,17 +118,21 @@ public class ChatController {
         List<ArrayList> history = new ArrayList<>();
         //history.add(new ArrayList<>());
         requestBody.put("history",history);
-        Map post = RestTemplateUtils.post(chatModule.getModuleUrl(), requestBody, Map.class,request);
-        Chat chat = new Chat();
-        chat.setPid(pid);
-        chat.setDate(new Timestamp(System.currentTimeMillis()));
-        chat.setContent(post.get("response").toString());
-        chat.setRoomId(resources.getRoomId());
-        chat.setSenderId(0);
-        chat.setType(1);
-        chat.setUserId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
-        ChatDto response = chatService.create(chat);
-        return new ResponseEntity<>(response,HttpStatus.CREATED);
+        try{
+            Map post = RestTemplateUtils.post(chatModule.getModuleUrl(), requestBody, Map.class,request);
+            Chat chat = new Chat();
+            chat.setPid(pid);
+            chat.setDate(new Timestamp(System.currentTimeMillis()));
+            chat.setContent(post.get("response").toString());
+            chat.setRoomId(resources.getRoomId());
+            chat.setSenderId(0);
+            chat.setType(1);
+            chat.setUserId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
+            ChatDto response = chatService.create(chat);
+            return new ResponseEntity<>(response,HttpStatus.CREATED);
+        }catch (Exception e) {
+            throw new BadRequestException("请求超时");
+        }
     }
 
     @PutMapping

@@ -13,42 +13,16 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package me.zhengjie.modules.chat.service.dto;
+package me.zhengjie.modules.room.repository;
 
-import lombok.Data;
-
-import javax.persistence.Column;
-import java.sql.Timestamp;
-import java.io.Serializable;
+import me.zhengjie.modules.room.domain.ChatRoom1;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
 * @website https://eladmin.vip
-* @description /
-* @author 李煊
-* @date 2023-06-07
+* @author 曲志强
+* @date 2023-11-01
 **/
-@Data
-public class ChatDto implements Serializable {
-
-    private Integer id;
-
-    /** 年月日 */
-    private Timestamp timestamp;
-
-    private String content;
-
-    /** user_id */
-    private Integer senderId;
-
-    /** 时分 */
-    private Timestamp date;
-
-    /** 0:提问 1:回答 */
-    private Integer type;
-    private Integer pid;
-
-
-    private Integer userId;
-
-    private Integer roomId;
+public interface ChatRoomRepository1 extends JpaRepository<ChatRoom1, Integer>, JpaSpecificationExecutor<ChatRoom1> {
 }

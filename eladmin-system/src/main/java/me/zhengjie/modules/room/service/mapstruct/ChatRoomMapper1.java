@@ -13,42 +13,20 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package me.zhengjie.modules.chat.service.dto;
+package me.zhengjie.modules.room.service.mapstruct;
 
-import lombok.Data;
-
-import javax.persistence.Column;
-import java.sql.Timestamp;
-import java.io.Serializable;
+import me.zhengjie.base.BaseMapper;
+import me.zhengjie.modules.room.domain.ChatRoom1;
+import me.zhengjie.modules.room.service.dto.ChatRoomDto1;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 /**
 * @website https://eladmin.vip
-* @description /
-* @author 李煊
-* @date 2023-06-07
+* @author 曲志强
+* @date 2023-11-01
 **/
-@Data
-public class ChatDto implements Serializable {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface ChatRoomMapper1 extends BaseMapper<ChatRoomDto1, ChatRoom1> {
 
-    private Integer id;
-
-    /** 年月日 */
-    private Timestamp timestamp;
-
-    private String content;
-
-    /** user_id */
-    private Integer senderId;
-
-    /** 时分 */
-    private Timestamp date;
-
-    /** 0:提问 1:回答 */
-    private Integer type;
-    private Integer pid;
-
-
-    private Integer userId;
-
-    private Integer roomId;
 }

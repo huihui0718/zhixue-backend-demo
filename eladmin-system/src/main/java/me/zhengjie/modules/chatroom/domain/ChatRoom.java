@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -38,6 +39,13 @@ public class ChatRoom implements Serializable {
     @ApiModelProperty(value = "module")
     private Integer module;
 
-    private String pathName;
+    @Column(name = "`update_time`")
+    @ApiModelProperty(value = "updateTime")
+    private Timestamp updateTime;
 
+    @Column(name = "`module_name`")
+    @ApiModelProperty(value = "moduleName")
+    private String moduleName;
+
+    private String pathName;
 }
