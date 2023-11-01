@@ -38,4 +38,6 @@ public class ChatRoom implements Serializable {
     @ApiModelProperty(value = "module")
     private Integer module;
 
+    private String pathName;
+
 }

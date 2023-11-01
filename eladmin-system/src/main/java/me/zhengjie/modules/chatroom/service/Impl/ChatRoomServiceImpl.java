@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.modules.chat.domain.Chat;
 import me.zhengjie.modules.chatroom.domain.ChatRoom;
 import me.zhengjie.modules.chatroom.repository.ChatMapper;
+import me.zhengjie.modules.chatroom.repository.ChatModuleMapper;
 import me.zhengjie.modules.chatroom.repository.ChatRoomMapper;
 import me.zhengjie.modules.chatroom.service.ChatRoomService;
 import me.zhengjie.utils.SecurityUtils;
@@ -22,6 +23,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 
     private final ChatRoomMapper chatRoomMapper;
+    private final ChatModuleMapper chatModuleMapper;
     private final ChatRoomMapper chatMessageMapper;
     private final ChatMapper chatMapper;
 
@@ -45,7 +47,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     public List<ChatRoom> Retrieve(Integer userId){
         QueryWrapper<ChatRoom> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id",userId);
-        List<ChatRoom> chatRooms = chatRoomMapper.selectList(queryWrapper);
+        List<ChatRoom> chatRooms = chatRoomMapper.findRoomById(userId);
         return chatRooms;
     }
 

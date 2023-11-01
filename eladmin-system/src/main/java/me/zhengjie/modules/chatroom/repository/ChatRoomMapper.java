@@ -16,5 +16,6 @@ public interface ChatRoomMapper extends BaseMapper<ChatRoom> {
     @Select("SELECT * FROM chat_message WHERE user_id = #{userId}")
     List<ChatRoom> findById(Integer userId);
 
-
+    @Select("SELECT r.*,m.path_name FROM chat_room r join chat_module m on r.module=m.id WHERE user_id = #{userId}")
+    List<ChatRoom> findRoomById(Integer userId);
 }
