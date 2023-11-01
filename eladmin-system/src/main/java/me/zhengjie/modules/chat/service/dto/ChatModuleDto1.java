@@ -1,0 +1,59 @@
+/*
+*  Copyright 2019-2020 Zheng Jie
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*  http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
+*/
+package me.zhengjie.modules.chat.service.dto;
+
+import lombok.Data;
+import java.sql.Timestamp;
+import java.io.Serializable;
+
+/**
+* @website https://eladmin.vip
+* @description /
+* @author 曲志强
+* @date 2023-11-01
+**/
+@Data
+public class ChatModuleDto1 implements Serializable {
+
+    private Integer id;
+
+    /** 模型名字 */
+    private String moduleName;
+
+    /** 模型描述 */
+    private String moduleContent;
+
+    /** 模型url */
+    private String moduleUrl;
+
+    /** 创作者 */
+    private Integer createBy;
+
+    /** 创作时间 */
+    private Timestamp createTime;
+
+    /** 修改者 */
+    private Integer updateBy;
+
+    /** 修改时间 */
+    private Timestamp updateTime;
+
+    /** 图片地址 */
+    private String path;
+
+    /** 图片名 */
+    private String pathName;
+}
