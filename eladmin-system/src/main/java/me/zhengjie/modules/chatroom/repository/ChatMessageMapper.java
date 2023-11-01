@@ -6,14 +6,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import me.zhengjie.modules.chatroom.domain.ChatMessage;
-import me.zhengjie.modules.chatroom.domain.ChatRoom;
-import me.zhengjie.modules.news.domain.NewsComment;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Mapper

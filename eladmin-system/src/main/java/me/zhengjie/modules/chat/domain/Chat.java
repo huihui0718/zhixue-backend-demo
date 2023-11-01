@@ -69,6 +69,9 @@ public class Chat implements Serializable {
     @Column(name = "`room_id`")
     private Integer roomId;
 
+    @Column(name = "`chat_hot`")
+    private Integer chatHot;
+
     public void copy(Chat source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

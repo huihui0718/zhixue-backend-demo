@@ -16,41 +16,17 @@
 package me.zhengjie.modules.chat.service.dto;
 
 import lombok.Data;
-
-import javax.persistence.Column;
-import java.sql.Timestamp;
-import java.io.Serializable;
+import me.zhengjie.annotation.Query;
 
 /**
 * @website https://eladmin.vip
-* @description /
-* @author 李煊
-* @date 2023-06-07
+* @author 曲志强
+* @date 2023-11-01
 **/
 @Data
-public class ChatDto implements Serializable {
+public class ChatModuleQueryCriteria1 {
 
-    private Integer id;
-
-    /** 年月日 */
-    private Timestamp timestamp;
-
-    private String content;
-
-    /** user_id */
-    private Integer senderId;
-
-    /** 时分 */
-    private Timestamp date;
-
-    /** 0:提问 1:回答 */
-    private Integer type;
-    private Integer pid;
-
-
-    private Integer userId;
-
-    private Integer roomId;
-
-    private Integer chatHot;
+    /** 精确 */
+    @Query
+    private String moduleName;
 }

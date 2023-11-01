@@ -24,7 +24,6 @@ import me.zhengjie.annotation.Log;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.news.domain.News;
-import me.zhengjie.modules.news.domain.NewsComment;
 import me.zhengjie.modules.news.repository.NewsMapper;
 import me.zhengjie.modules.news.service.NewsService;
 import me.zhengjie.modules.news.service.dto.NewsQueryCriteria;

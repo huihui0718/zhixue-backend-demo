@@ -16,12 +16,12 @@
 package me.zhengjie.modules.news.service.impl;
 
 import me.zhengjie.modules.news.domain.News;
+import me.zhengjie.modules.news.service.dto.NewsDto;
 import me.zhengjie.utils.ValidationUtil;
 import me.zhengjie.utils.FileUtil;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.modules.news.repository.NewsRepository;
 import me.zhengjie.modules.news.service.NewsService;
-import me.zhengjie.modules.news.service.dto.NewsDto;
 import me.zhengjie.modules.news.service.dto.NewsQueryCriteria;
 import me.zhengjie.modules.news.service.mapstruct.NewsMapper;
 import org.springframework.stereotype.Service;

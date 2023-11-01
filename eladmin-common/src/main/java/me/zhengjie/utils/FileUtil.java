@@ -78,11 +78,11 @@ public class FileUtil extends cn.hutool.core.io.FileUtil {
      */
     private static final DecimalFormat DF = new DecimalFormat("0.00");
 
-    public static final String IMAGE = "图片";
-    public static final String TXT = "文档";
-    public static final String MUSIC = "音乐";
-    public static final String VIDEO = "视频";
-    public static final String OTHER = "其他";
+    public static final String IMAGE = "IMAGE";
+    public static final String TXT = "TXT";
+    public static final String MUSIC = "MUSIC";
+    public static final String VIDEO = "VIDEO";
+    public static final String OTHER = "OTHER";
 
 
     /**
