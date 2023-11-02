@@ -15,12 +15,10 @@
  */
 package me.zhengjie.modules.mnt.websocket;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
 import com.alibaba.fastjson.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhengjie.utils.RedisUtils;
-import org.springframework.data.redis.core.RedisTemplate;
+import me.zhengjie.util.SpeechTranscriberWithMicrophoneDemo;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -47,8 +45,8 @@ public class WebSocketServer {
 	private Session session;
 	private String sid="";
 	private String roomId="";
+	private SpeechTranscriberWithMicrophoneDemo demo;
 	private Set<String> rooms = new HashSet<>();
-	//private final RedisTemplate<String,String> redisTemplate;
 	private static CopyOnWriteArraySet<WebSocketServer> webSocketSet = new CopyOnWriteArraySet<WebSocketServer>();
 	private static ConcurrentHashMap<String,Set<String>> roomPool = new ConcurrentHashMap<>();
 	private static ConcurrentHashMap<String,Session> sessionPool = new ConcurrentHashMap<String,Session>();
@@ -57,7 +55,7 @@ public class WebSocketServer {
 	 * 连接建立成功调用的方法
 	 * */
 	@OnOpen
-	public void onOpen(Session session, @PathParam("sid") String sid, @PathParam("roomId")String roomId) {
+	public void onOpen(Session session, @PathParam("sid") String sid, @PathParam("roomId")String roomId) throws Exception {
 
 		//如果存在就先删除一个，防止重复推送消息
 		for (WebSocketServer webSocket:webSocketSet) {
@@ -74,6 +72,11 @@ public class WebSocketServer {
 		this.roomId=roomId;
 		this.session = session;
 		log.info("sid:" + sid+ " webSocket连接成功");
+		String appKey = "SVGw6ZCfzcHKGyLX";
+		String id = "LTAI5t7me3ptzvhxLWTWFWcY";
+		String secret = "m8nd1UaSsf8kqYjysIIWzDCDiXeFi9";
+		String url = "wss://nls-gateway.cn-shanghai.aliyuncs.com/ws/v1";
+		this.demo = new SpeechTranscriberWithMicrophoneDemo(appKey, id, secret, url);
 		//System.out.println(getUsersInRoom(this.roomId));
 	}
 
@@ -86,14 +89,18 @@ public class WebSocketServer {
 		sessionPool.remove(this.sid);
 		removeUserFromRoom(this.roomId,this.sid);
 		log.info("sid:" + sid+ " webSocket连接断开");
+		demo=null;
 	}
 
-	/**
-	 * 收到客户端消息后调用的方法
-	 * @param message 客户端发送过来的消息*/
 	@OnMessage
-	public void onMessage(String message, Session session) {
-		log.info("收到来"+sid+"的信息:"+message);
+	public void onMessage(byte[] audioData, Session session) throws Exception {
+		// 在这里处理接收到的音频数据
+		// 根据你的需求，可以将音频数据存储到文件或进行进一步的处理和分析
+		String result = demo.processAudioData(audioData);
+		if(!result.isEmpty()){
+			sendAllMessage(result);
+			demo.setResult();
+		}
 	}
 
 	@OnError

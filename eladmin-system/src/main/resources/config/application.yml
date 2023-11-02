@@ -1,5 +1,5 @@
 server:
-  port: 18000
+  port: 8000
 
 glm:
   url: http://43.134.163.43:18000/

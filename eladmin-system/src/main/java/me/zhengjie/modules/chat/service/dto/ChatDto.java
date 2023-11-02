@@ -45,12 +45,20 @@ public class ChatDto implements Serializable {
 
     /** 0:提问 1:回答 */
     private Integer type;
-    private Integer pid;
 
+    private Integer pid;
 
     private Integer userId;
 
     private Integer roomId;
 
     private Integer chatHot;
+
+    private Integer chatLike;
+
+    private String chatType;
+
+    private String path;
+
+    private String pathName;
 }

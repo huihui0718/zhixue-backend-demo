@@ -6,29 +6,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.exception.BadRequestException;
-import me.zhengjie.modules.chatroom.domain.ChatMessage;
 import me.zhengjie.modules.newchatroom.domain.NewChatMessage;
 import me.zhengjie.modules.newchatroom.repository.NewChatMessageMapper;
 import me.zhengjie.modules.newchatroom.service.NewChatMessageService;
-import me.zhengjie.modules.newchatroom.until.MessageSender;
-import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.util.WordUtil;
 import me.zhengjie.utils.FileUtil;
 import me.zhengjie.utils.SecurityUtils;
-import me.zhengjie.utils.StringUtils;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.constraints.NotBlank;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import static me.zhengjie.utils.FileUtil.getExtensionName;
 
 
 @Service
@@ -55,22 +47,18 @@ public class NewChatMessageServiceImpl implements NewChatMessageService {
     }
 
     @Override
-    public NewChatMessage createImage(MultipartFile multipartFile,String roomId) {
+    public NewChatMessage createImage(MultipartFile file) throws IOException {
         // 文件大小验证
-        FileUtil.checkSize(fileProperties.getAvatarMaxSize(), multipartFile.getSize());
+        FileUtil.checkSize(fileProperties.getAvatarMaxSize(), file.getSize());
         // 验证文件上传的格式
-        String image = "gif jpg png jpeg";
-        String fileType = FileUtil.getExtensionName(multipartFile.getOriginalFilename());
-        if(fileType != null && !image.contains(fileType)){
-            throw new BadRequestException("文件格式错误！, 仅支持 " + image +" 格式");
-        }
-        File file = FileUtil.upload(multipartFile,  fileProperties.getPath().getPath());
+        File file1 = FileUtil.upload(file,  fileProperties.getPath().getPath());
         NewChatMessage newChatMessage = new NewChatMessage();
-        newChatMessage.setRoomId(Integer.valueOf(roomId));
-        newChatMessage.setType("IMAGE");
-        newChatMessage.setSenderId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
-        newChatMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        newChatMessage.setPath(Objects.requireNonNull(file).getPath());
+        String originalFilename = file.getOriginalFilename();
+        // 获取后缀下标
+        // 截取文件后缀
+        String suffix = getExtensionName(file.getOriginalFilename());
+        // 调用工具类
+        newChatMessage.setPath(Objects.requireNonNull(file1).getPath());
         newChatMessage.setPathName(file.getName());
         newChatMessageMapper.insert(newChatMessage);
         return newChatMessage;
@@ -82,7 +70,7 @@ public class NewChatMessageServiceImpl implements NewChatMessageService {
         FileUtil.checkSize(fileProperties.getAvatarMaxSize(), multipartFile.getSize());
         // 验证文件上传的格式
         String file1 = "text doc docx pdf";
-        String fileType = FileUtil.getExtensionName(multipartFile.getOriginalFilename());
+        String fileType = getExtensionName(multipartFile.getOriginalFilename());
         if(fileType != null && !file1.contains(fileType)){
             throw new BadRequestException("文件格式错误！, 仅支持 " + file1 +" 格式");
         }
@@ -90,7 +78,6 @@ public class NewChatMessageServiceImpl implements NewChatMessageService {
         NewChatMessage newChatMessage = new NewChatMessage();
         newChatMessage.setRoomId(Integer.valueOf(roomId));
         newChatMessage.setType("FILE");
-        newChatMessage.setSenderId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
         newChatMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
         newChatMessage.setPath(Objects.requireNonNull(file).getPath());
         newChatMessage.setPathName(file.getName());

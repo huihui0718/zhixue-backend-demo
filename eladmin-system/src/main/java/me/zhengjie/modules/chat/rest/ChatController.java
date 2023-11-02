@@ -108,10 +108,11 @@ public class ChatController {
         resources.setType(0);
         resources.setUserId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
         resources.setSenderId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
+        resources.setChatType("TEXT");
+        resources.setChatLike(0);
         ChatDto chatDto = chatService.create(resources);
         Integer pid = chatDto.getId();
         ChatModule chatModule = chatModuleMapper.selectById(module);
-        log.info(chatModule.toString());
 //        调用api获取回答post.get("response").toString()
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("prompt", resources.getContent());
@@ -127,6 +128,8 @@ public class ChatController {
             chat.setRoomId(resources.getRoomId());
             chat.setSenderId(0);
             chat.setType(1);
+            chat.setChatLike(0);
+            chat.setChatType("TEXT");
             chat.setUserId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
             ChatDto response = chatService.create(chat);
             return new ResponseEntity<>(response,HttpStatus.CREATED);

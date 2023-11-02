@@ -7,6 +7,7 @@ import me.zhengjie.modules.newchatroom.domain.NewChatRoom;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public interface NewChatMessageService {
 
     List<NewChatMessage> findByRoomId(String roomId);
 
-    NewChatMessage createImage(MultipartFile multipartFile,String roomId);
+    NewChatMessage createImage(MultipartFile multipartFile) throws IOException;
 
     NewChatMessage createFile(MultipartFile multipartFile,String roomId);
 

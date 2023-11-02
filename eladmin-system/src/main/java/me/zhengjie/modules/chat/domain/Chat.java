@@ -63,14 +63,33 @@ public class Chat implements Serializable {
     private Integer type;
 
     @Column(name = "`user_id`")
+    @ApiModelProperty(value = "用户Id")
     private Integer userId;
+
+    @Column(name = "`pid`")
+    @ApiModelProperty(value = "用户Id")
     private Integer pid;
 
     @Column(name = "`room_id`")
+    @ApiModelProperty(value = "房间Id")
     private Integer roomId;
 
     @Column(name = "`chat_hot`")
+    @ApiModelProperty(value = "1:热门")
     private Integer chatHot;
+
+    @Column(name = "`chat_like`")
+    @ApiModelProperty(value = "1:喜欢")
+    private Integer chatLike;
+
+    @Column(name = "`chat_type`")
+    private String chatType;
+
+    @Column(name = "`path`")
+    private String path;
+
+    @Column(name = "`path_name`")
+    private String pathName;
 
     public void copy(Chat source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
