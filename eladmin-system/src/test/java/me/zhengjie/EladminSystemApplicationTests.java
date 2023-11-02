@@ -20,39 +20,5 @@ import java.sql.Timestamp;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EladminSystemApplicationTests {
 
-    @Autowired
-    private NewChatMessageService newChatMessageService;
-    @Autowired
-    private  ChatMessageMapper chatMessageMapper;
-    @Autowired
-    private NewChatRoomMapper newChatRoomMapper;
-    @Autowired
-    private NewsUserMapper newsUserMapper;
-
-    @Autowired
-    private AmqpAdmin amqpAdmin;
-    @Test
-    public void createroom() {
-        NewChatRoom newChatRoom = new NewChatRoom();
-        newChatRoom.setCreatetime(new Timestamp(System.currentTimeMillis()));
-        newChatRoom.setUserId(1);
-        newChatRoom.setTitle("123");
-        newChatRoom.setIsopen(1);
-        System.out.println(newChatRoomMapper.insert(newChatRoom));
-    }
-
-
-    @Test
-    public void sendmessage() throws IOException {
-        WebSocketServer.sendInfoToString("1","111111");
-    }
-
-    @Test
-    public void CRUDTEST(){
-        Page<News> page = new Page<>(1, 5);
-        IPage<News> newsCommentIPage = newsUserMapper.findByUserId(1,page);
-        System.out.println(newsCommentIPage.getRecords());
-    }
-
 }
 
