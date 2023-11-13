@@ -105,51 +105,48 @@ public class NewChatMessageController {
         ChatDto chatDto = chatService.create(resources);
         Integer pid = chatDto.getId();
         ChatModule chatModule = chatModuleMapper.selectById(moduleId);
-        switch (Objects.requireNonNull(fileType)) {
-            case "docx" -> {
-                assert file1 != null;
-                OPCPackage opcPackage = POIXMLDocument.openPackage(file1.getPath());
-                POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
-                result = extractor.getText();
-                extractor.close();
-            }
-            case "doc" -> {
-                InputStream is;
-                assert file1 != null;
-                is = new FileInputStream(file1.getPath());
-                WordExtractor re = new WordExtractor(is);
-                result = re.getText();
+        if (fileType.equals("docx")) {
+            assert file1 != null;
+            OPCPackage opcPackage = POIXMLDocument.openPackage(file1.getPath());
+            POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
+            result = extractor.getText();
+            extractor.close();
+        }
+        else if(fileType.equals("doc")) {
+            InputStream is;
+            assert file1 != null;
+            is = new FileInputStream(file1.getPath());
+            WordExtractor re = new WordExtractor(is);
+            result = re.getText();
                 re.close();
             }
-            case "pdf" -> {
-                StringBuilder result1 = new StringBuilder();
-                FileInputStream is;
-                assert file1 != null;
-                is = new FileInputStream(file1);
-                PDFParser parser = new PDFParser(new RandomAccessBuffer(is));
-                parser.parse();
-                PDDocument doc = parser.getPDDocument();
-                PDFTextStripper textStripper = new PDFTextStripper();
-                for (int i = 1; i <= doc.getNumberOfPages(); i++) {
-                    textStripper.setStartPage(i);
-                    textStripper.setEndPage(i);
-                    textStripper.setSortByPosition(true);
-                    String s = textStripper.getText(doc);
-                    result1.append(s);
-                }
-                result=result1.toString();
-                doc.close();
+        else if (fileType.equals("pdf")){
+            StringBuilder result1 = new StringBuilder();
+            FileInputStream is;
+            assert file1 != null;
+            is = new FileInputStream(file1);
+            PDFParser parser = new PDFParser(new RandomAccessBuffer(is));
+            parser.parse();
+            PDDocument doc = parser.getPDDocument();
+            PDFTextStripper textStripper = new PDFTextStripper();
+            for (int i = 1; i <= doc.getNumberOfPages(); i++) {
+                textStripper.setStartPage(i);
+                textStripper.setEndPage(i);
+                textStripper.setSortByPosition(true);
+                String s = textStripper.getText(doc);
+                result1.append(s);
             }
-            case "mp3" -> {
-                String filePath = file1.getPath();
-                String pcmFilePath = filePath.replace(".mp3", ".pcm");
-                String wavFilePath = filePath.replace(".mp3", ".wav");
-                Mp3ToPcm.Mp3ToPcm(filePath,pcmFilePath);
-                Mp3ToPcm.pcmToWav(pcmFilePath,wavFilePath);
-                KedaApi.getApi(wavFilePath);
-            }
+            result=result1.toString();
+            doc.close();
         }
-        log.info(result);
+        else if (fileType.equals("mp3")){
+            String filePath = file1.getPath();
+            String pcmFilePath = filePath.replace(".mp3", ".pcm");
+            String wavFilePath = filePath.replace(".mp3", ".wav");
+            Mp3ToPcm.Mp3ToPcm(filePath,pcmFilePath);
+            Mp3ToPcm.pcmToWav(pcmFilePath,wavFilePath);
+            KedaApi.getApi(wavFilePath);
+        }
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("prompt", result);
 //        List<ArrayList> history = new ArrayList<>();
