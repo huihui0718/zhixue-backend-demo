@@ -82,7 +82,11 @@ public class NewChatMessageController {
                                            @RequestParam(value = "moduleId") Integer moduleId,
                                            HttpServletRequest request) throws IOException, OpenXML4JException, XmlException {
         FileUtil.checkSize(fileProperties.getAvatarMaxSize(), file.getSize());
+        String TYPE = "doc docx pdf mp3";
         String suffix = FileUtil.getExtensionName(file.getOriginalFilename());
+        if(suffix!=null&&!TYPE.contains(suffix)){
+            throw  new BadRequestException("仅支持doc,docx,pdf,mp3类型的文件");
+        }
         String type = FileUtil.getFileType(suffix);
         File file1 = FileUtil.upload(file,  fileProperties.getPath().getPath() + type +  File.separator);
         String fileType = FileUtil.getExtensionName(file.getOriginalFilename());

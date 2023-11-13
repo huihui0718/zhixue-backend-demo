@@ -44,17 +44,17 @@ public class ChatModule1 implements Serializable {
     @ApiModelProperty(value = "id")
     private Integer id;
 
-    @Column(name = "`module_name`")
+    @Column(name = "`module_name`",nullable = false)
     @NotBlank
     @ApiModelProperty(value = "模型名字")
     private String moduleName;
 
-    @Column(name = "`module_content`")
+    @Column(name = "`module_content`",nullable = false)
     @NotBlank
     @ApiModelProperty(value = "模型描述")
     private String moduleContent;
 
-    @Column(name = "`module_url`")
+    @Column(name = "`module_url`",nullable = false)
     @NotBlank
     @ApiModelProperty(value = "模型url")
     private String moduleUrl;
@@ -77,12 +77,12 @@ public class ChatModule1 implements Serializable {
     @ApiModelProperty(value = "修改时间")
     private Timestamp updateTime;
 
-    @Column(name = "`path`")
+    @Column(name = "`path`",nullable = false)
     @NotBlank
     @ApiModelProperty(value = "图片地址")
     private String path;
 
-    @Column(name = "`path_name`")
+    @Column(name = "`path_name`",nullable = false)
     @NotBlank
     @ApiModelProperty(value = "图片名")
     private String pathName;
