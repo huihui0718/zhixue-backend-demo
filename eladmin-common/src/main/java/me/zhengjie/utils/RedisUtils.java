@@ -197,6 +197,20 @@ public class RedisUtils {
         }
     }
 
+    // ============================Zset=============================
+    public boolean zset(String key, Object value) {
+        try {
+            redisTemplate.opsForZSet().add(key, value, System.currentTimeMillis());
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public Set<Object> getHistory(String key) {
+        return redisTemplate.opsForZSet().reverseRange(key, 0, -1);
+    }
     // ============================String=============================
 
     /**

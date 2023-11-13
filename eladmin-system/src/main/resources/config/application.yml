@@ -49,6 +49,9 @@ task:
     keep-alive-seconds: 60
     # 队列容量
     queue-capacity: 50
+  scheduling:
+    pool:
+      size: 5
 
 #七牛云
 qiniu:

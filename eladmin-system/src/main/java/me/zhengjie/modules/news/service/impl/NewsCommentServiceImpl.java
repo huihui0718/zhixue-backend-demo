@@ -31,7 +31,7 @@ public class NewsCommentServiceImpl implements NewsCommentService {
     public NewsComment addComment(NewsComment newsComment) {
         newsComment.setParentId(0);
         newsComment.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        newsComment.setSenderId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
+        newsComment.setSendId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
         newsCommentMapper.insert(newsComment);
         return newsComment;
     }
@@ -39,7 +39,7 @@ public class NewsCommentServiceImpl implements NewsCommentService {
     @Override
     public NewsComment addCommentByParentId(NewsComment newsComment) {
         newsComment.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        newsComment.setSenderId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
+        newsComment.setSendId(Math.toIntExact(SecurityUtils.getCurrentUserId()));
         newsCommentMapper.insert(newsComment);
         newsCommentMapper.insert(newsComment);
         return newsComment;

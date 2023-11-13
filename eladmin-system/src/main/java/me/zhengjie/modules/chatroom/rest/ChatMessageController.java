@@ -7,33 +7,21 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.Log;
-import me.zhengjie.modules.chat.domain.Chat;
-import me.zhengjie.modules.chat.service.dto.ChatDto;
-import me.zhengjie.modules.chat.service.dto.ChatQueryCriteria;
 import me.zhengjie.modules.chatroom.domain.ChatMessage;
 import me.zhengjie.modules.chatroom.repository.ChatMessageMapper;
 import me.zhengjie.modules.chatroom.service.ChatMessageService;
-import me.zhengjie.modules.chatroom.service.ChatRoomService;
 import me.zhengjie.util.RestTemplateUtils;
 import me.zhengjie.utils.SecurityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -51,10 +39,12 @@ public class ChatMessageController {
     @ApiOperation("查询聊天")
     public ResponseEntity<Object> findByRoomIdAndUserIdWithPage(@PathVariable String roomId,
                                                                 Pageable pageable) {
+        String[] sort =  pageable.getSort().toString().split(":");
+        Sort sort1 = pageable.getSort();
         Page<ChatMessage> page = new Page<>(pageable.getPageNumber(), pageable.getPageSize());
         QueryWrapper<ChatMessage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("room_id",roomId)
-                .orderByDesc("id");
+                .orderBy(true,sort[1].contains("ASC"),sort[0]);
         IPage<ChatMessage> chatMessageIPage = chatMessageMapper.selectPage(page,queryWrapper);
         List<ChatMessage> chatMessageList = chatMessageIPage.getRecords();
         return new ResponseEntity<>(chatMessageList, HttpStatus.OK);

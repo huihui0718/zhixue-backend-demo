@@ -23,11 +23,21 @@ import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.modules.newSystem.newsUserLike.domain.NewsUserLike;
+import me.zhengjie.modules.newSystem.newsUserLike.repository.newsUserLikeMapper;
+import me.zhengjie.modules.newSystem.newsUserStar.domain.NewsUserStar;
+import me.zhengjie.modules.newSystem.newsUserStar.repository.newsUserStarMapper;
 import me.zhengjie.modules.news.domain.News;
 import me.zhengjie.modules.news.repository.NewsMapper;
+import me.zhengjie.modules.news.repository.NewsRepository;
 import me.zhengjie.modules.news.service.NewsService;
+import me.zhengjie.modules.news.service.dto.NewsDto;
 import me.zhengjie.modules.news.service.dto.NewsQueryCriteria;
 import me.zhengjie.utils.FileUtil;
+import me.zhengjie.utils.RedisUtils;
+import me.zhengjie.utils.SecurityUtils;
+import me.zhengjie.utils.StringUtils;
+import org.apache.ibatis.annotations.Result;
 import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +50,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -54,9 +66,13 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/api/news")
 public class NewsController {
 
+    private final RedisUtils redisUtils;
     private final NewsService newsService;
     private final FileProperties properties;
     private final NewsMapper newsMapper;
+    private final NewsRepository newsRepository;
+    private final newsUserLikeMapper newsUserLikeMapper;
+    private final newsUserStarMapper newsUserStarMapper;
 
     @Log("导出数据")
     @ApiOperation("导出数据")
@@ -71,6 +87,73 @@ public class NewsController {
     public ResponseEntity<Object> queryNews(NewsQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(newsService.queryAll(criteria,pageable),HttpStatus.OK);
     }
+
+    @GetMapping("/test")
+    @Log("测试")
+    @ApiOperation("测试")
+    public ResponseEntity<Object> test(@RequestParam(value = "page") Integer page,
+                                       @RequestParam(value = "size") Integer size,
+                                       @RequestParam(value = "sort") String sort,
+                                       @RequestParam(value = "order")String order,
+                                       @RequestParam(value = "type")Integer type,
+                                       @RequestParam(value = "search") String search){
+        Page<News> newsPage = new Page<>(page,size);
+        IPage<NewsDto> iPage = newsMapper.findNewsWithComments(newsPage,sort,order,type,search);
+        Integer userId = Math.toIntExact(SecurityUtils.getCurrentUserId());
+        for (NewsDto list : iPage.getRecords()){
+            if(redisUtils.hHasKey("NEWS_USER_LIKE",list.getNewsId()+"::"+userId)){
+                Boolean isTrue = (Boolean) redisUtils.hget("NEWS_USER_LIKE",list.getNewsId()+"::"+userId);
+                list.setIsLiked(isTrue);
+            } else {
+                list.setIsLiked(newsUserLikeMapper.selectOne(new QueryWrapper<NewsUserLike>()
+                        .eq("user_id", userId)
+                        .eq("news_id", list.getNewsId()))!=null);
+            }
+            list.setIsStared(newsUserStarMapper.selectOne(new QueryWrapper<NewsUserStar>()
+                    .eq("user_id", userId)
+                    .eq("news_id", list.getNewsId()))!=null);
+        }
+        return new ResponseEntity<>(iPage,HttpStatus.OK);
+    }
+
+    @GetMapping("/getNewsByStarRoom")
+    @Log("测试")
+    @ApiOperation("测试")
+    public ResponseEntity<Object> getNewsByStarRoom(@RequestParam(value = "page") Integer page,
+                                                    @RequestParam(value = "size") Integer size,
+                                                    @RequestParam(value = "sort") String sort,
+                                                    @RequestParam(value = "order")String order,
+                                                    @RequestParam(value = "type")String type,
+                                                    @RequestParam(value = "search") String search,
+                                                    @RequestParam(value = "starRoomId")Integer starRoomId){
+        Page<News> newsPage = new Page<>(page,size);
+        Integer userId = Math.toIntExact(SecurityUtils.getCurrentUserId());
+        QueryWrapper<News> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(search),"news_title",search);
+        queryWrapper.eq(StringUtils.isNotBlank(type),"type",type);
+        if(order.equals("desc")){
+            queryWrapper.orderByDesc(sort);
+        }else {
+            queryWrapper.orderByAsc(sort);
+        }
+        IPage<NewsDto> iPage = newsMapper.getNewsByStarRoom(newsPage,starRoomId,queryWrapper);
+        return new ResponseEntity<>(iPage,HttpStatus.OK);
+    }
+
+    @PostMapping ("/newsUserLike")
+    public ResponseEntity<Object> newsLikeAdd(@RequestParam(value = "newsId")Integer newsId,
+                                              @RequestParam(value = "isLiked") Boolean isLiked){
+        int userId = Math.toIntExact(SecurityUtils.getCurrentUserId());
+        if (!isLiked) {
+            redisUtils.hset("NEWS_USER_LIKE",newsId+"::"+userId,true,-1);
+            newsMapper.updateByNewsId1(newsId);
+        } else {
+            redisUtils.hset("NEWS_USER_LIKE",newsId+"::"+userId,false,-1);
+            newsMapper.updateByNewsId2(newsId);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @GetMapping("query")
     @Log("查询咨询")

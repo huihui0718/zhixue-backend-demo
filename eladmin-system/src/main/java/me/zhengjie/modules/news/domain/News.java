@@ -15,14 +15,18 @@
 */
 package me.zhengjie.modules.news.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.ApiModelProperty;
 import cn.hutool.core.bean.copier.CopyOptions;
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import me.zhengjie.modules.newSystem.newsPost.domain.NewsPost;
 import org.hibernate.annotations.*;
 import java.sql.Timestamp;
 import java.io.Serializable;
@@ -80,6 +84,39 @@ public class News implements Serializable {
     @Column(name = "`news_content`")
     @ApiModelProperty(value = "newsContent")
     private String newsContent;
+
+    @Column(name = "`news_like`")
+    private String newsLike;
+
+    @Column(name = "`news_star`")
+    private String newsStar;
+
+    @Column(name = "`user_id`")
+    private String userId;
+
+    @Transient
+    @TableField(exist = false)
+    private List<NewsPost> newsComments;
+
+    @Transient
+    @TableField(exist = false)
+    private Integer commentCount;
+
+    @Transient
+    @TableField(exist = false)
+    private Boolean isLiked;
+
+    @Transient
+    @TableField(exist = false)
+    private Boolean isStared;
+
+    @Transient
+    @TableField(exist = false)
+    private String nickName;
+
+    @Transient
+    @TableField(exist = false)
+    private String avatarName;
 
     public void copy(News source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

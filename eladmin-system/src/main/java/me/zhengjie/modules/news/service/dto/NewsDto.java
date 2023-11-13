@@ -1,8 +1,16 @@
 package me.zhengjie.modules.news.service.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import me.zhengjie.modules.newSystem.newsPost.domain.NewsPost;
+import me.zhengjie.modules.news.domain.NewsComment;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @website https://eladmin.vip
@@ -34,4 +42,22 @@ public class NewsDto implements Serializable {
     private Timestamp updateTime;
 
     private String newsContent;
+
+    private String newsLike;
+
+    private String newsStar;
+
+    private String userId;
+
+    private List<NewsPost> newsComments;
+
+    private Integer commentCount;
+
+    private Boolean isLiked;
+
+    private Boolean isStared;
+
+    private String nickName;
+
+    private String avatarName;
 }
