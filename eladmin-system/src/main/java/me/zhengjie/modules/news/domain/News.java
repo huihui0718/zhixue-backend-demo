@@ -100,7 +100,7 @@ public class News implements Serializable {
 
     @Transient
     @TableField(exist = false)
-    private Integer commentCount;
+    private Integer commentTotol;
 
     @Transient
     @TableField(exist = false)

@@ -51,7 +51,7 @@ public class NewsDto implements Serializable {
 
     private List<NewsPost> newsComments;
 
-    private Integer commentCount;
+    private Integer commentTotol;
 
     private Boolean isLiked;
 

@@ -2,6 +2,9 @@ package me.zhengjie.component;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
+import me.zhengjie.modules.newSystem.newsHistory.domain.NewsHistory;
+import me.zhengjie.modules.newSystem.newsHistory.repository.NewsHistoryRepository;
+import me.zhengjie.modules.newSystem.newsHistory.repository.newsHistoryMapper;
 import me.zhengjie.modules.newSystem.newsPostUserLike.domain.NewsPostUserLike;
 import me.zhengjie.modules.newSystem.newsPostUserLike.repository.NewsPostUserLikeRepository;
 import me.zhengjie.modules.newSystem.newsPostUserLike.repository.newsPostUserLikeMapper;
@@ -9,11 +12,14 @@ import me.zhengjie.modules.newSystem.newsUserLike.domain.NewsUserLike;
 import me.zhengjie.modules.newSystem.newsUserLike.repository.NewsUserLikeRepository;
 import me.zhengjie.modules.newSystem.newsUserLike.repository.newsUserLikeMapper;
 import me.zhengjie.utils.RedisUtils;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +30,10 @@ public class RedisCleanupTask {
     private final newsPostUserLikeMapper newsPostUserLikeMapper;
     private final NewsUserLikeRepository newsUserLikeRepository;
     private final NewsPostUserLikeRepository newsPostUserLikeRepository;
+    // 查询历史信息的持久层
+    private final newsHistoryMapper newsHistoryMapper;
+    // 保存历史信息的持久层
+    private final NewsHistoryRepository newsHistoryRepository;
     // 指定定时任务的执行时间间隔为2小时（单位：毫秒）
     @Scheduled(fixedDelay = 2*60*60* 1000)
     public void cleanupRedisData() {
@@ -73,5 +83,31 @@ public class RedisCleanupTask {
             }
         }
         redisUtils.del("NEWS_POST_USER_LIKE");
+    }
+
+    @Scheduled(fixedDelay = 2*60*60* 1000)
+    public void cleanupRedisNewsHistory() {
+        List<String> keyLists = redisUtils.scan("NEWS_HISTORY:");
+        for(String key : keyLists){
+            String userId = key.substring(13);
+            Set<ZSetOperations.TypedTuple<Object>> results = redisUtils.getSetWithScore(key,0,-1);
+            for (ZSetOperations.TypedTuple<Object> tuple : results) {
+                String member = (String) tuple.getValue();
+                long score =Long.parseLong(tuple.getScore().toString());
+                NewsHistory newsHistory = newsHistoryMapper.selectOne(new QueryWrapper<NewsHistory>()
+                                .eq("userId",userId).eq("news_id",member));
+                if(newsHistory!=null){
+                    newsHistory.setCreateTime(new Timestamp(score));
+                    newsHistoryRepository.save(newsHistory);
+                }
+                else {
+                    NewsHistory newsHistory1 = new NewsHistory();
+                    newsHistory1.setCreateTime(new Timestamp(score));
+                    newsHistory1.setNewsId(Integer.valueOf(member));
+                    newsHistory1.setUserId(Integer.valueOf(userId));
+                    newsHistoryRepository.save(newsHistory1);
+                }
+            }
+        }
     }
 }

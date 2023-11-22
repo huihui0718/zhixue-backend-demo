@@ -20,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.config.RsaProperties;
 import me.zhengjie.modules.system.domain.Dept;
@@ -112,6 +113,16 @@ public class UserController {
         checkLevel(resources);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
+        userService.create(resources);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Log("注册新增用户")
+    @ApiOperation("新增用户")
+    @PostMapping
+    public ResponseEntity<Object> createUser1(@Validated @RequestBody User resources){
+        // 默认密码 123456
+        resources.setPassword(passwordEncoder.encode(resources.getPassword()));
         userService.create(resources);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

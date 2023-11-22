@@ -211,6 +211,11 @@ public class RedisUtils {
     public Set<Object> getHistory(String key) {
         return redisTemplate.opsForZSet().reverseRange(key, 0, -1);
     }
+
+    public Set<ZSetOperations.TypedTuple<Object>> getSetWithScore(String key,Integer start,Integer end){
+        return redisTemplate.opsForZSet().rangeWithScores(key, start, end);
+    }
+
     // ============================String=============================
 
     /**
