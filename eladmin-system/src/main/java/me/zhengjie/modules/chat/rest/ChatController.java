@@ -15,6 +15,7 @@
 */
 package me.zhengjie.modules.chat.rest;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
@@ -24,6 +25,7 @@ import me.zhengjie.modules.chat.service.ChatService;
 import me.zhengjie.modules.chat.service.dto.ChatDto;
 import me.zhengjie.modules.chat.service.dto.ChatQueryCriteria;
 import me.zhengjie.modules.chatroom.domain.ChatModule;
+import me.zhengjie.modules.chatroom.repository.ChatMapper;
 import me.zhengjie.modules.chatroom.repository.ChatModuleMapper;
 import me.zhengjie.util.RestTemplateUtils;
 import me.zhengjie.utils.SecurityUtils;
@@ -62,6 +64,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final ChatModuleMapper chatModuleMapper;
+    private final ChatMapper chatMapper;
 
 //    private final
 
@@ -107,6 +110,7 @@ public class ChatController {
     public ResponseEntity<Object> createChat(HttpServletRequest request,
                                              @Validated @RequestBody Chat resources,
                                              @RequestParam("module") Integer module){
+        List<String> history = chatMapper.findByRoomId(resources.getRoomId(),Math.toIntExact(SecurityUtils.getCurrentUserId()));
         resources.setDate(new Timestamp(System.currentTimeMillis()));
         resources.setPid(0);
         resources.setType(0);
@@ -120,8 +124,13 @@ public class ChatController {
 //        调用api获取回答post.get("response").toString()
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("prompt", resources.getContent());
-        List<ArrayList> history = new ArrayList<>();
+//        List<ArrayList> history = new ArrayList<>();
         //history.add(new ArrayList<>());
+//        QueryWrapper<Chat> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("user_id",Math.toIntExact(SecurityUtils.getCurrentUserId()));
+//        queryWrapper.eq("room_id",resources.getRoomId());
+//        List<String> history = new ArrayList<>();
+        System.out.println(history);
         requestBody.put("history",history);
         try{
             Map post = RestTemplateUtils.post(chatModule.getModuleUrl(), requestBody, Map.class,request);

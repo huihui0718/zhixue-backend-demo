@@ -202,6 +202,7 @@ public class NewsController {
     public ResponseEntity<Object> importNumber3(@RequestParam MultipartFile file){
         // 验证文件上传的格式
         String excel = "pdf doc docx";
+
         String fileType = FileUtil.getExtensionName(file.getOriginalFilename());
         if (fileType != null && !excel.contains(fileType)) {
             throw new BadRequestException("文件格式错误！, 仅支持 " + excel + " 格式");

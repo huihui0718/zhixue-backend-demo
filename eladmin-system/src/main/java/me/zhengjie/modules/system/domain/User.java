@@ -69,16 +69,13 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "用户名称")
     private String username;
 
-    @NotBlank
     @ApiModelProperty(value = "用户昵称")
     private String nickName;
 
     @Email
-    @NotBlank
     @ApiModelProperty(value = "邮箱")
     private String email;
 
-    @NotBlank
     @ApiModelProperty(value = "电话号码")
     private String phone;
 

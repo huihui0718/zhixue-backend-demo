@@ -16,6 +16,7 @@
 package me.zhengjie.modules.system.rest;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,10 @@ import me.zhengjie.annotation.AnonymousAccess;
 import me.zhengjie.annotation.Log;
 import me.zhengjie.config.RsaProperties;
 import me.zhengjie.modules.system.domain.Dept;
+import me.zhengjie.modules.system.domain.SysUsersRoles;
+import me.zhengjie.modules.system.repository.SysUsersRolesMapper1;
+import me.zhengjie.modules.system.repository.UserMapper1;
+import me.zhengjie.modules.system.repository.UserRepository;
 import me.zhengjie.modules.system.service.DataService;
 import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.exception.BadRequestException;
@@ -69,11 +74,15 @@ public class UserController {
     private final DeptService deptService;
     private final RoleService roleService;
     private final VerifyService verificationCodeService;
+    private final UserMapper1 userMapper1;
+    private final SysUsersRolesMapper1 sysUsersRolesMapper1;
+    private final UserRepository userRepository;
 
     @ApiOperation("导出用户数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('user:list')")
     public void exportUser(HttpServletResponse response, UserQueryCriteria criteria) throws IOException {
+
         userService.download(userService.queryAll(criteria), response);
     }
 
@@ -119,11 +128,23 @@ public class UserController {
 
     @Log("注册新增用户")
     @ApiOperation("新增用户")
-    @PostMapping
+    @PostMapping("/zhuce")
     public ResponseEntity<Object> createUser1(@Validated @RequestBody User resources){
         // 默认密码 123456
+        QueryWrapper<User> queryWrapper =new QueryWrapper<User>()
+                .eq("username",resources.getUsername());
+        List<User> users = userMapper1.selectList(queryWrapper);
+        if (users!=null){
+            throw new BadRequestException("已经有用户注册了该用户名，请重新注册！");
+        }
+        resources.setEnabled(true);
+        resources.setNickName("新用户");
         resources.setPassword(passwordEncoder.encode(resources.getPassword()));
-        userService.create(resources);
+        User user = userRepository.save(resources);
+        SysUsersRoles sysUsersRoles = new SysUsersRoles();
+        sysUsersRoles.setRoleId(2);
+        sysUsersRoles.setUserId(Math.toIntExact(user.getId()));
+        sysUsersRolesMapper1.insert(sysUsersRoles);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

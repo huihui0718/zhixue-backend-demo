@@ -15,7 +15,9 @@
 */
 package me.zhengjie.modules.newSystem.starRoom.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,6 +39,7 @@ import java.io.Serializable;
 public class StarRoom implements Serializable {
 
     @Id
+    @TableId(value = "id", type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "`star_room_id`")
     @ApiModelProperty(value = "starRoomId")

@@ -16,6 +16,7 @@
 package me.zhengjie.modules.security.rest;
 
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.base.Captcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +35,11 @@ import me.zhengjie.modules.security.security.TokenProvider;
 import me.zhengjie.modules.security.service.dto.AuthUserDto;
 import me.zhengjie.modules.security.service.dto.JwtUserDto;
 import me.zhengjie.modules.security.service.OnlineUserService;
+import me.zhengjie.modules.system.domain.SysUsersRoles;
+import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.modules.system.repository.SysUsersRolesMapper1;
+import me.zhengjie.modules.system.repository.UserMapper1;
+import me.zhengjie.modules.system.repository.UserRepository;
 import me.zhengjie.utils.RsaUtils;
 import me.zhengjie.utils.RedisUtils;
 import me.zhengjie.utils.SecurityUtils;
@@ -44,11 +50,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,8 +76,35 @@ public class AuthorizationController {
     private final OnlineUserService onlineUserService;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final UserMapper1 userMapper1;
+    private final SysUsersRolesMapper1 sysUsersRolesMapper1;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Resource
     private LoginProperties loginProperties;
+
+    @Log("注册新增用户")
+    @ApiOperation("新增用户")
+    @PostMapping("/zhuce")
+    public ResponseEntity<Object> createUser1(@Validated @RequestBody User resources){
+        // 默认密码 123456
+        QueryWrapper<User> queryWrapper =new QueryWrapper<User>()
+                .eq("username",resources.getUsername());
+        List<User> users = userMapper1.selectList(queryWrapper);
+        if (users!=null){
+            throw new BadRequestException("已经有用户注册了该用户名，请重新注册！");
+        }
+        resources.setEnabled(true);
+        resources.setNickName("新用户");
+        resources.setPassword(passwordEncoder.encode(resources.getPassword()));
+        User user = userRepository.save(resources);
+        SysUsersRoles sysUsersRoles = new SysUsersRoles();
+        sysUsersRoles.setRoleId(2);
+        sysUsersRoles.setUserId(Math.toIntExact(user.getId()));
+        sysUsersRolesMapper1.insert(sysUsersRoles);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
     @Log("用户登录")
     @ApiOperation("登录授权")
