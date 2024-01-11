@@ -42,10 +42,7 @@ import io.swagger.annotations.*;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -110,7 +107,23 @@ public class ChatController {
     public ResponseEntity<Object> createChat(HttpServletRequest request,
                                              @Validated @RequestBody Chat resources,
                                              @RequestParam("module") Integer module){
-        List<String> history = chatMapper.findByRoomId(resources.getRoomId(),Math.toIntExact(SecurityUtils.getCurrentUserId()));
+        List<Chat> history = chatMapper.findByRoomId(resources.getRoomId(),Math.toIntExact(SecurityUtils.getCurrentUserId()));
+        history = history.stream()
+                .sorted(Comparator.comparingInt(Chat::getId))
+                .collect(Collectors.toList());
+        List<List<String>> history1 = new ArrayList<>();
+        Map<Integer,Chat> chatMap = new HashMap<>();
+        for(Chat his : history){
+            chatMap.put(his.getPid(),his);
+        }
+        for(Chat his : history){
+            if(his.getPid()==0){
+                List<String> stringList = new ArrayList<>();
+                stringList.add(his.getContent());
+                stringList.add(chatMap.getOrDefault(his.getId(),null).getContent());
+                history1.add(stringList);
+            }
+        }
         resources.setDate(new Timestamp(System.currentTimeMillis()));
         resources.setPid(0);
         resources.setType(0);
@@ -126,12 +139,8 @@ public class ChatController {
         requestBody.put("prompt", resources.getContent());
 //        List<ArrayList> history = new ArrayList<>();
         //history.add(new ArrayList<>());
-//        QueryWrapper<Chat> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("user_id",Math.toIntExact(SecurityUtils.getCurrentUserId()));
-//        queryWrapper.eq("room_id",resources.getRoomId());
-//        List<String> history = new ArrayList<>();
-        System.out.println(history);
-        requestBody.put("history",history);
+        System.out.println(history1);
+        requestBody.put("history",history1);
         try{
             Map post = RestTemplateUtils.post(chatModule.getModuleUrl(), requestBody, Map.class,request);
             Chat chat = new Chat();

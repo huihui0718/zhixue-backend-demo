@@ -10,9 +10,10 @@ import java.util.List;
 
 @Mapper
 public interface ChatMapper extends BaseMapper<Chat> {
-    @Select("select c.content " +
+    @Select("select c.* " +
             "from chat c " +
             "where room_id = #{roomId} and user_id =#{userId} " +
-            "LIMIT 10 ")
-    List<String> findByRoomId(@Param("roomId") Integer roomId,@Param("userId") Integer userId);
+            "order by _id desc " +
+            "LIMIT 20")
+    List<Chat> findByRoomId(@Param("roomId") Integer roomId,@Param("userId") Integer userId);
 }
